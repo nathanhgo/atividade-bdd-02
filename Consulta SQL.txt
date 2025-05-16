@@ -1,0 +1,55 @@
+CREATE TABLE Venda (
+    idVenda INT AUTO_INCREMENT PRIMARY KEY,
+    valorTotal DECIMAL(10, 2) NOT NULL,
+    dataHora DATETIME NOT NULL
+);
+
+CREATE TABLE Produto (
+    idProduto INT AUTO_INCREMENT PRIMARY KEY,
+    valor DECIMAL(10, 2) NOT NULL
+);
+
+CREATE TABLE ItemVenda (
+    idItemVenda INT AUTO_INCREMENT PRIMARY KEY,
+    idVenda INT,
+    idProduto INT,
+    valorUnitario DECIMAL(10, 2) NOT NULL,
+    quantidade INT NOT NULL,
+    FOREIGN KEY (idVenda) REFERENCES Venda(idVenda),
+    FOREIGN KEY (idProduto) REFERENCES Produto(idProduto),
+    UNIQUE (idVenda, idProduto)
+);
+
+INSERT INTO Venda (valorTotal, dataHora) VALUES (52.00, '2025-10-05 11:30:00');
+INSERT INTO Venda (valorTotal, dataHora) VALUES (260.00, '2025-05-15 20:55:00');
+
+
+INSERT INTO Produto (valor) VALUES (10.50);
+INSERT INTO Produto (valor) VALUES (11.00);
+INSERT INTO Produto (valor) VALUES (20.00);
+INSERT INTO Produto (valor) VALUES (30.00);
+INSERT INTO Produto (valor) VALUES (35.00);
+
+INSERT INTO ItemVenda(idVenda, idProduto, valorUnitario, quantidade) VALUES (1, 1, 10.50, 2);
+INSERT INTO ItemVenda(idVenda, idProduto, valorUnitario, quantidade) VALUES (1, 2, 11.00, 1);
+INSERT INTO ItemVenda(idVenda, idProduto, valorUnitario, quantidade) VALUES (1, 3, 20.00, 1);
+INSERT INTO ItemVenda(idVenda, idProduto, valorUnitario, quantidade) VALUES (2, 3, 20.00, 3);
+INSERT INTO ItemVenda(idVenda, idProduto, valorUnitario, quantidade) VALUES (2, 4, 30.00, 4);
+INSERT INTO ItemVenda(idVenda, idProduto, valorUnitario, quantidade) VALUES (2, 5, 35.00, 2);
+INSERT INTO ItemVenda(idVenda, idProduto, valorUnitario, quantidade) VALUES (2, 1, 10.50, 1);
+
+SELECT valorUnitario, quantidade, Venda.`idVenda`, Venda.`valorTotal`, `Venda`.`dataHora`, produto.`idProduto`, produto.valor
+FROM itemvenda
+INNER JOIN Venda USING (`idVenda`)
+INNER JOIN produto USING (`idProduto`);
+
+
+-- Com base no modelo de Venda & Produto, defina uma consulta SQL que retorne a lista de produtos que participaram de todas as vendas.
+
+SELECT p.idProduto, p.valor
+FROM produto AS p
+JOIN itemvenda AS iv USING (`idProduto`)
+GROUP BY p.idProduto, p.valor
+HAVING COUNT(DISTINCT iv.idVenda) = (
+    SELECT COUNT(*) FROM venda
+);
